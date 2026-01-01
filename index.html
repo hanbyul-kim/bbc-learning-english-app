@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BBC 6 Minute English - Podcast Episodes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.2rem;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 4px solid white;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #ff6b6b;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .stats {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            color: white;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .search-box {
+            margin-bottom: 30px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.95);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .search-box input:focus {
+            outline: none;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .episodes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .episode-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .episode-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+        }
+
+        .episode-date {
+            font-size: 0.85rem;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .episode-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .episode-description {
+            font-size: 0.95rem;
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .episode-link {
+            display: inline-block;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: opacity 0.3s ease;
+        }
+
+        .episode-link:hover {
+            opacity: 0.9;
+        }
+
+        .no-results {
+            text-align: center;
+            color: white;
+            font-size: 1.2rem;
+            padding: 40px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .episodes-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎧 BBC 6 Minute English</h1>
+            <p class="subtitle">Learn and practice English with engaging topics</p>
+        </header>
+
+        <div id="stats" class="stats" style="display: none;">
+            <div class="stat-item">
+                <div class="stat-number" id="totalEpisodes">0</div>
+                <div class="stat-label">Total Episodes</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="latestYear">2025</div>
+                <div class="stat-label">Latest Year</div>
+            </div>
+        </div>
+
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="🔍 Search episodes by title or description...">
+        </div>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading episodes from BBC Learning English...</p>
+        </div>
+
+        <div id="error" style="display: none;"></div>
+
+        <div id="episodesList" class="episodes-grid"></div>
+    </div>
+
+    <script>
+        let allEpisodes = [];
+
+        async function loadEpisodes() {
+            const loadingEl = document.getElementById('loading');
+            const errorEl = document.getElementById('error');
+            const episodesListEl = document.getElementById('episodesList');
+            const statsEl = document.getElementById('stats');
+
+            try {
+                // Using rss2json.com as a CORS proxy
+                const RSS_FEED = 'https://feeds.bbci.co.uk/learningenglish/english/features/6-minute-english/rss';
+                const API_URL = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(RSS_FEED)}`;
+
+                const response = await fetch(API_URL);
+                const data = await response.json();
+
+                if (data.status !== 'ok') {
+                    throw new Error('Failed to load RSS feed');
+                }
+
+                allEpisodes = data.items.map(item => ({
+                    title: item.title,
+                    description: item.description.replace(/<[^>]*>/g, ''), // Remove HTML tags
+                    link: item.link,
+                    pubDate: new Date(item.pubDate),
+                    guid: item.guid
+                }));
+
+                // Update stats
+                document.getElementById('totalEpisodes').textContent = allEpisodes.length;
+                if (allEpisodes.length > 0) {
+                    const latestYear = allEpisodes[0].pubDate.getFullYear();
+                    document.getElementById('latestYear').textContent = latestYear;
+                }
+                statsEl.style.display = 'flex';
+
+                // Display episodes
+                displayEpisodes(allEpisodes);
+
+                loadingEl.style.display = 'none';
+
+            } catch (error) {
+                console.error('Error loading episodes:', error);
+                loadingEl.style.display = 'none';
+                errorEl.style.display = 'block';
+                errorEl.innerHTML = `
+                    <h3>⚠️ Unable to load episodes</h3>
+                    <p>Please try refreshing the page or visit the <a href="https://www.bbc.co.uk/learningenglish/english/features/6-minute-english" target="_blank" style="color: white; text-decoration: underline;">BBC Learning English website</a> directly.</p>
+                    <p style="margin-top: 10px; font-size: 0.9rem;">Error: ${error.message}</p>
+                `;
+            }
+        }
+
+        function displayEpisodes(episodes) {
+            const episodesListEl = document.getElementById('episodesList');
+
+            if (episodes.length === 0) {
+                episodesListEl.innerHTML = '<div class="no-results">No episodes found matching your search.</div>';
+                return;
+            }
+
+            episodesListEl.innerHTML = episodes.map(episode => `
+                <div class="episode-card" onclick="window.open('${episode.link}', '_blank')">
+                    <div class="episode-date">${formatDate(episode.pubDate)}</div>
+                    <h3 class="episode-title">${episode.title}</h3>
+                    <p class="episode-description">${truncateText(episode.description, 150)}</p>
+                    <a href="${episode.link}" class="episode-link" target="_blank" onclick="event.stopPropagation()">
+                        Listen Now →
+                    </a>
+                </div>
+            `).join('');
+        }
+
+        function formatDate(date) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return date.toLocaleDateString('en-US', options);
+        }
+
+        function truncateText(text, maxLength) {
+            if (text.length <= maxLength) return text;
+            return text.substr(0, maxLength).trim() + '...';
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const filteredEpisodes = allEpisodes.filter(episode =>
+                episode.title.toLowerCase().includes(searchTerm) ||
+                episode.description.toLowerCase().includes(searchTerm)
+            );
+            displayEpisodes(filteredEpisodes);
+        });
+
+        // Load episodes on page load
+        loadEpisodes();
+    </script>
+</body>
+</html>
