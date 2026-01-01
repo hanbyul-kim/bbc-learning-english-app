@@ -184,6 +184,170 @@
             padding: 40px;
         }
 
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px 20px 0 0;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .close-button {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 2rem;
+            color: white;
+            cursor: pointer;
+            background: rgba(255,255,255,0.2);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+
+        .close-button:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            padding-right: 50px;
+        }
+
+        .modal-date {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .audio-player {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .audio-player audio {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .audio-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .audio-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: opacity 0.3s;
+        }
+
+        .audio-link:hover {
+            opacity: 0.9;
+        }
+
+        .transcript-section {
+            margin-top: 30px;
+        }
+
+        .transcript-section h3 {
+            font-size: 1.3rem;
+            color: #2d3748;
+            margin-bottom: 15px;
+        }
+
+        .transcript-content {
+            background: #f7fafc;
+            padding: 25px;
+            border-radius: 15px;
+            line-height: 1.8;
+            color: #4a5568;
+            font-size: 1rem;
+        }
+
+        .transcript-loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
+        .transcript-error {
+            background: #fff5f5;
+            color: #c53030;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .transcript-pdf-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: #4299e1;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+
+        .transcript-pdf-link:hover {
+            background: #3182ce;
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 2rem;
@@ -191,6 +355,22 @@
 
             .episodes-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                max-height: 95vh;
+            }
+
+            .modal-header {
+                padding: 20px;
+            }
+
+            .modal-title {
+                font-size: 1.4rem;
+            }
+
+            .modal-body {
+                padding: 20px;
             }
         }
     </style>
@@ -225,6 +405,43 @@
         <div id="error" style="display: none;"></div>
 
         <div id="episodesList" class="episodes-grid"></div>
+
+        <!-- Episode Player Modal -->
+        <div id="playerModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="close-button" onclick="closeModal()">&times;</span>
+                    <h2 class="modal-title" id="modalTitle"></h2>
+                    <div class="modal-date" id="modalDate"></div>
+                </div>
+                <div class="modal-body">
+                    <div class="audio-player">
+                        <audio id="audioPlayer" controls preload="metadata">
+                            Your browser does not support the audio element.
+                        </audio>
+                        <div class="audio-links">
+                            <a id="downloadMp3" href="#" download class="audio-link">
+                                📥 Download MP3
+                            </a>
+                            <a id="bbcPageLink" href="#" target="_blank" class="audio-link">
+                                🔗 BBC Page
+                            </a>
+                        </div>
+                    </div>
+
+                    <div id="episodeDescription" style="margin-bottom: 20px; color: #4a5568; line-height: 1.6;"></div>
+
+                    <div class="transcript-section">
+                        <h3>📄 Transcript</h3>
+                        <div id="transcriptContainer">
+                            <div class="transcript-loading">
+                                Loading transcript...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -281,6 +498,93 @@
             }
         }
 
+        // Construct download URLs based on episode data
+        function constructDownloadUrls(episode) {
+            // Extract date in YYMMDD format
+            const year = episode.pubDate.getFullYear().toString().slice(-2);
+            const month = String(episode.pubDate.getMonth() + 1).padStart(2, '0');
+            const day = String(episode.pubDate.getDate()).padStart(2, '0');
+            const datePrefix = year + month + day;
+
+            // Create slug from title (lowercase, replace spaces with underscores, remove special chars)
+            const titleSlug = episode.title
+                .toLowerCase()
+                .replace(/[^a-z0-9\s-]/g, '')
+                .replace(/\s+/g, '_')
+                .replace(/_+/g, '_')
+                .replace(/^_|_$/g, '');
+
+            // Construct URLs based on BBC pattern
+            const baseUrl = 'https://downloads.bbc.co.uk/learningenglish/features/6min/';
+            const mp3Url = `${baseUrl}${datePrefix}_6_minute_english_${titleSlug}_download.mp3`;
+            const transcriptUrl = `${baseUrl}${datePrefix}_6_minute_english__${titleSlug}_transcript.pdf`;
+
+            return { mp3Url, transcriptUrl };
+        }
+
+        // Open episode player modal
+        function openEpisode(episode) {
+            const modal = document.getElementById('playerModal');
+            const { mp3Url, transcriptUrl } = constructDownloadUrls(episode);
+
+            // Set modal content
+            document.getElementById('modalTitle').textContent = episode.title;
+            document.getElementById('modalDate').textContent = formatDate(episode.pubDate);
+            document.getElementById('episodeDescription').textContent = episode.description;
+
+            // Set audio player
+            const audioPlayer = document.getElementById('audioPlayer');
+            audioPlayer.src = mp3Url;
+
+            // Set download links
+            document.getElementById('downloadMp3').href = mp3Url;
+            document.getElementById('bbcPageLink').href = episode.link;
+
+            // Load transcript
+            loadTranscript(transcriptUrl);
+
+            // Show modal
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close modal
+        function closeModal() {
+            const modal = document.getElementById('playerModal');
+            const audioPlayer = document.getElementById('audioPlayer');
+
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+
+            // Pause audio
+            audioPlayer.pause();
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('playerModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Load transcript (PDF link for now)
+        async function loadTranscript(transcriptUrl) {
+            const container = document.getElementById('transcriptContainer');
+
+            container.innerHTML = `
+                <div class="transcript-content">
+                    <p style="margin-bottom: 15px;">The transcript is available as a PDF file.</p>
+                    <a href="${transcriptUrl}" target="_blank" class="transcript-pdf-link" download>
+                        📄 Download Transcript PDF
+                    </a>
+                    <p style="margin-top: 15px; font-size: 0.9rem; color: #718096;">
+                        You can also view the full transcript on the <a href="#" id="transcriptBbcLink" target="_blank" style="color: #667eea; text-decoration: underline;">BBC page</a>.
+                    </p>
+                </div>
+            `;
+        }
+
         function displayEpisodes(episodes) {
             const episodesListEl = document.getElementById('episodesList');
 
@@ -289,12 +593,12 @@
                 return;
             }
 
-            episodesListEl.innerHTML = episodes.map(episode => `
-                <div class="episode-card" onclick="window.open('${episode.link}', '_blank')">
+            episodesListEl.innerHTML = episodes.map((episode, index) => `
+                <div class="episode-card" onclick="openEpisode(allEpisodes.find(e => e.guid === '${episode.guid}'))">
                     <div class="episode-date">${formatDate(episode.pubDate)}</div>
                     <h3 class="episode-title">${episode.title}</h3>
                     <p class="episode-description">${truncateText(episode.description, 150)}</p>
-                    <a href="${episode.link}" class="episode-link" target="_blank" onclick="event.stopPropagation()">
+                    <a href="#" class="episode-link" onclick="event.preventDefault(); event.stopPropagation(); openEpisode(allEpisodes.find(e => e.guid === '${episode.guid}'))">
                         Listen Now →
                     </a>
                 </div>
